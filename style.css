@@ -1,0 +1,259 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Tahoma', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-image: url(images/background.jpg);
+    background-size: cover;
+    width: 100%;
+    height: 100vh;
+}
+
+.desktop-icons {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.desktop-icon {
+    width: 96px;
+    text-align: center;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.2;
+}
+
+.desktop-icon img {
+    width: 96px;
+    height: 96px;
+    margin-bottom: 0;
+    display: block;
+}
+
+.desktop-icon span {
+    margin-top: 4px;
+}
+
+.taskbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(to bottom, #0a54de, #0461e3, #0a54de);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+    border-radius: 0;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.taskbar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 4px;
+    width: 100%;
+    background: linear-gradient(to bottom, #0f84e9, #0a54de);
+    z-index: 1;
+}
+
+.taskbar-left {
+    height: 100%;
+}
+
+.taskbar-right {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: radial-gradient(#008fee, #15a3fc);
+    padding: 0 12px;
+    border-radius: 0;
+    color: white;
+    font-size: 12px;
+    gap: 6px;
+}
+
+#clock {
+    margin-left: auto;
+}
+
+#soundIcon {
+    height: 40px;
+    width: auto;
+    cursor: pointer;
+}
+
+#sound-icon {
+    cursor: pointer;
+    font-size: 18px;
+}
+
+#start-button {
+    position: relative;
+    z-index: 2;
+    background: radial-gradient(#1c921c, #0f5d32);
+    border: none;
+    height: 100%;
+    padding: 0 32px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 20px;
+    border-radius: 0 10px 10px 0;
+    justify-content: flex-start;
+}
+
+#start-button img {
+    height: 16px;
+    width: auto;
+    margin-left: -12px;
+}
+
+#startMenu {
+    position: absolute;
+    bottom: 40px;
+    left: 0;
+    width: 400px;
+    background: #fff;
+    display: none;
+    flex-direction: column;
+    font-size: 16px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    border-radius: 6px;
+}
+
+#startMenu.active {
+    display: flex;
+}
+
+
+
+/* Top Section */
+#start-header {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(to top, #2892ec, #004cb4);
+    color: white;
+    padding: 12px;
+    height: 60px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+#start-header img {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    border: white 2px solid;
+    margin-right: 10px;
+}
+
+/* Middle Section */
+#start-body {
+    display: flex;
+    height: 400px;
+}
+
+#start-left {
+    width: 50%;
+    background: white;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+#start-right {
+    width: 50%;
+    background: #cee5fb;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Bottom Section */
+#start-footer {
+    background: linear-gradient(to bottom, #2892ec, #004cb4);
+    color: white;
+    padding: 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 18px;
+    align-items: center;
+    height: 45px;
+}
+
+#help-button {
+    cursor: pointer;
+}
+
+.popup {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    background: #e0e0e0;
+    border: 2px solid #000;
+    border-radius: 8px;
+    z-index: 1001;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
+    display: none;
+    flex-direction: column;
+}
+
+#help-popup-content {
+    display: flex;
+    flex-direction: column;
+}
+
+#help-popup-header {
+    background: #004cb4;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    cursor: move;
+    user-select: none;
+}
+
+#help-popup-body {
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+}
+
+#close-help {
+    background: none;
+    border: none;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+}

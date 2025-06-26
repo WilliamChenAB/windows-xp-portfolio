@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Windows XP Personal Portfolio</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="desktop-icons">
+        <div class="desktop-icon" id="about-me">
+            <img src="images/messenger.png" alt="About Me" />
+            <span>About Me</span>
+        </div>
+        <div class="desktop-icon" id="projects">
+            <img src="images/folder.png" alt="Projects" />
+            <span>Projects</span>
+        </div>
+        <div class="desktop-icon" id="resume">
+            <img src="images/file.png" alt="Resume" />
+            <span>Resume</span>
+        </div>
+        <div class="desktop-icon" id="contact">
+            <img src="images/mail.png" alt="Contact" />
+            <span>Contact</span>
+        </div>
+    </div>
+
+    <div class="taskbar">
+        <div class="taskbar-left">
+            <button id="start-button" onclick="toggleStartMenu()">
+                <img src="images/windows-xp-logo.png" alt="XP Logo" />
+                <em>start</em>
+            </button>
+        </div>
+        <div class="taskbar-right">
+            <img id="soundIcon" src="images/unmuted.png" alt="Sound Icon" />
+            <div id="clock">12:00 PM</div>
+        </div>
+    </div>
+
+    <div id="startMenu">
+        <div id="start-header">
+            <img src="images/headshot.png" alt="User Picture" />
+            <span>William Lee Chen</span>
+        </div>
+
+        <div id="start-body">
+            <div id="start-left">
+                <!-- Left-side menu items -->
+                <div>📁 Projects</div>
+                <div>📄 Resume</div>
+                <div>📬 Contact</div>
+            </div>
+            <div id="start-right">
+                <!-- Right-side frequently used / pinned apps -->
+                <div>🖥️ My Computer</div>
+                <div>🖼️ Pictures</div>
+                <div>🎵 Music</div>
+                <div id="help-button">❓ Help</div>
+            </div>
+        </div>
+
+        <div id="start-footer">
+            <div>🔒 Log Off</div>
+            <div>⏻ Shut Down</div>
+        </div>
+    </div>
+
+    <div class="popup" id="help-popup">
+        <div id="help-popup-content">
+            <div id="help-popup-header">
+                <span>Help</span>
+                <button id="close-help">X</button>
+            </div>
+            <div id="help-popup-body">
+                <p>Welcome to my Windows XP–style personal portfolio! You can explore projects, view my resume, or
+                    contact me using the desktop icons or Start menu.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleStartMenu() {
+            const menu = document.getElementById('startMenu');
+            menu.classList.toggle('active');
+        }
+
+        let isMuted = false;
+
+        const soundIcon = document.getElementById("soundIcon");
+
+        soundIcon.addEventListener("click", () => {
+            isMuted = !isMuted;
+            soundIcon.src = isMuted ? "images/muted.png" : "images/unmuted.png";
+
+            // Mute/unmute all <audio> and <video> elements
+            const mediaElements = document.querySelectorAll("audio, video");
+            mediaElements.forEach(el => {
+                el.muted = isMuted;
+            });
+        });
+
+        function updateClock() {
+            const clock = document.getElementById("clock");
+            const now = new Date();
+
+            let hours = now.getHours();
+            const minutes = now.getMinutes();
+            const ampm = hours >= 12 ? "PM" : "AM";
+
+            hours = hours % 12;
+            hours = hours ? hours : 12; // 0 becomes 12
+
+            const paddedMinutes = minutes < 10 ? "0" + minutes : minutes;
+
+            clock.textContent = `${hours}:${paddedMinutes} ${ampm}`;
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        const helpPopup = document.getElementById("help-popup");
+
+        // Show popup on page load
+        window.addEventListener("DOMContentLoaded", () => {
+            helpPopup.style.display = "flex";
+        });
+
+        // Show when Help is clicked
+        document.getElementById("help-button").addEventListener("click", () => {
+            helpPopup.style.display = "flex";
+        });
+
+        // Close popup
+        document.getElementById("close-help").addEventListener("click", () => {
+            helpPopup.style.display = "none";
+        });
+
+        // Dragging functionality
+        const header = document.getElementById("help-popup-header");
+
+        let isDragging = false;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        header.addEventListener("mousedown", (e) => {
+            isDragging = true;
+            const rect = helpPopup.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+            helpPopup.style.transition = "none"; // Disable smooth movement
+        });
+
+        document.addEventListener("mousemove", (e) => {
+            if (isDragging) {
+                helpPopup.style.left = `${e.clientX - offsetX}px`;
+                helpPopup.style.top = `${e.clientY - offsetY}px`;
+                helpPopup.style.transform = "none"; // Remove centering effect when dragged
+            }
+        });
+
+        document.addEventListener("mouseup", () => {
+            isDragging = false;
+        });
+    </script>
+</body>
+
+</html>
