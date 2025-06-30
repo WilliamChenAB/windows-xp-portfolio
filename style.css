@@ -224,6 +224,26 @@ body {
     flex-direction: column;
 }
 
+.close-button {
+    background: none;
+    border: none;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.resize-handle {
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    background: linear-gradient(45deg, #fff 25%, #808080 25%, #808080 50%, #fff 50%);
+    background-size: 4px 4px;
+    cursor: se-resize;
+}
+
 #help-popup-content {
     display: flex;
     flex-direction: column;
@@ -249,11 +269,48 @@ body {
     color: #333;
 }
 
-#close-help {
-    background: none;
-    border: none;
+#resume-popup {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 800px;
+    background: #e0e0e0;
+    border: 2px solid #000;
+    border-radius: 8px;
+    z-index: 1001;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
+    display: none;
+    flex-direction: column;
+}
+
+#resume-popup-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#resume-popup-header {
+    background: #004cb4;
     color: white;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    cursor: move;
+    user-select: none;
+}
+
+#resume-popup-body {
+    flex: 1;
+    overflow: hidden;
+}
+
+#resume-pdf {
+    width: 100%;
+    height: 100%;
+    border: none;
 }

@@ -74,12 +74,26 @@
         <div id="help-popup-content">
             <div id="help-popup-header">
                 <span>Help</span>
-                <button id="close-help">X</button>
+                <button class="close-button" data-target="help-popup">X</button>
             </div>
             <div id="help-popup-body">
                 <p>Welcome to my Windows XP–style personal portfolio! You can explore projects, view my resume, or
                     contact me using the desktop icons or Start menu.</p>
             </div>
+            <div class="resize-handle"></div>
+        </div>
+    </div>
+
+    <div class="popup" id="resume-popup">
+        <div id="resume-popup-content">
+            <div id="resume-popup-header">
+                <span>Resume</span>
+                <button class="close-button" data-target="resume-popup">X</button>
+            </div>
+            <div id="resume-popup-body">
+                <iframe src="documents/resume.pdf" id="resume-pdf" frameborder="0"></iframe>
+            </div>
+            <div class="resize-handle"></div>
         </div>
     </div>
 
@@ -97,7 +111,6 @@
             isMuted = !isMuted;
             soundIcon.src = isMuted ? "images/muted.png" : "images/unmuted.png";
 
-            // Mute/unmute all <audio> and <video> elements
             const mediaElements = document.querySelectorAll("audio, video");
             mediaElements.forEach(el => {
                 el.muted = isMuted;
@@ -113,7 +126,7 @@
             const ampm = hours >= 12 ? "PM" : "AM";
 
             hours = hours % 12;
-            hours = hours ? hours : 12; // 0 becomes 12
+            hours = hours ? hours : 12;
 
             const paddedMinutes = minutes < 10 ? "0" + minutes : minutes;
 
@@ -125,22 +138,21 @@
 
         const helpPopup = document.getElementById("help-popup");
 
-        // Show popup on page load
+        document.querySelectorAll(".close-button").forEach(button => {
+            button.addEventListener("click", () => {
+                const targetId = button.getAttribute("data-target");
+                document.getElementById(targetId).style.display = "none";
+            });
+        });
+
         window.addEventListener("DOMContentLoaded", () => {
             helpPopup.style.display = "flex";
         });
 
-        // Show when Help is clicked
         document.getElementById("help-button").addEventListener("click", () => {
             helpPopup.style.display = "flex";
         });
 
-        // Close popup
-        document.getElementById("close-help").addEventListener("click", () => {
-            helpPopup.style.display = "none";
-        });
-
-        // Dragging functionality
         const header = document.getElementById("help-popup-header");
 
         let isDragging = false;
@@ -152,19 +164,84 @@
             const rect = helpPopup.getBoundingClientRect();
             offsetX = e.clientX - rect.left;
             offsetY = e.clientY - rect.top;
-            helpPopup.style.transition = "none"; // Disable smooth movement
+            helpPopup.style.transition = "none";
         });
 
         document.addEventListener("mousemove", (e) => {
             if (isDragging) {
                 helpPopup.style.left = `${e.clientX - offsetX}px`;
                 helpPopup.style.top = `${e.clientY - offsetY}px`;
-                helpPopup.style.transform = "none"; // Remove centering effect when dragged
+                helpPopup.style.transform = "none";
             }
         });
 
         document.addEventListener("mouseup", () => {
             isDragging = false;
+        });
+
+        const resizeHandle = helpPopup.querySelector(".resize-handle");
+        const minWidth = 300;
+        const minHeight = 200;
+
+        let isResizing = false;
+        let startX, startY, startWidth, startHeight;
+
+        resizeHandle.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            isResizing = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            const rect = helpPopup.getBoundingClientRect();
+            startWidth = rect.width;
+            startHeight = rect.height;
+            document.body.style.cursor = "se-resize";
+        });
+
+        document.addEventListener("mousemove", (e) => {
+            if (isResizing) {
+                const newWidth = Math.max(minWidth, startWidth + (e.clientX - startX));
+                const newHeight = Math.max(minHeight, startHeight + (e.clientY - startY));
+                helpPopup.style.width = newWidth + "px";
+                helpPopup.style.height = newHeight + "px";
+            }
+        });
+
+        document.addEventListener("mouseup", () => {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = "";
+            }
+        });
+
+        document.getElementById("resume").addEventListener("click", () => {
+            document.getElementById("resume-popup").style.display = "flex";
+        });
+
+        const resumePopup = document.getElementById("resume-popup");
+        const resumeHeader = document.getElementById("resume-popup-header");
+
+        let isDraggingResume = false;
+        let offsetXResume = 0;
+        let offsetYResume = 0;
+
+        resumeHeader.addEventListener("mousedown", (e) => {
+            isDraggingResume = true;
+            const rect = resumePopup.getBoundingClientRect();
+            offsetXResume = e.clientX - rect.left;
+            offsetYResume = e.clientY - rect.top;
+            resumePopup.style.transition = "none";
+        });
+
+        document.addEventListener("mousemove", (e) => {
+            if (isDraggingResume) {
+                resumePopup.style.left = `${e.clientX - offsetXResume}px`;
+                resumePopup.style.top = `${e.clientY - offsetYResume}px`;
+                resumePopup.style.transform = "none";
+            }
+        });
+
+        document.addEventListener("mouseup", () => {
+            isDraggingResume = false;
         });
     </script>
 </body>
