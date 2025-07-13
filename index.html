@@ -11,19 +11,19 @@
 
 <body>
     <div class="desktop-icons">
-        <div class="desktop-icon" id="about-me">
+        <div class="desktop-icon" id="about-me" data-popup-target="resume-popup">
             <img src="images/messenger.png" alt="About Me" />
             <span>About Me</span>
         </div>
-        <div class="desktop-icon" id="projects">
+        <div class="desktop-icon" id="projects" data-popup-target="resume-popup">
             <img src="images/folder.png" alt="Projects" />
             <span>Projects</span>
         </div>
-        <div class="desktop-icon" id="resume">
+        <div class="desktop-icon" id="resume" data-popup-target="resume-popup">
             <img src="images/file.png" alt="Resume" />
             <span>Resume</span>
         </div>
-        <div class="desktop-icon" id="contact">
+        <div class="desktop-icon" id="contact" data-popup-target="resume-popup">
             <img src="images/mail.png" alt="Contact" />
             <span>Contact</span>
         </div>
@@ -72,7 +72,7 @@
 
     <div class="popup" id="help-popup">
         <div id="help-popup-content">
-            <div id="help-popup-header">
+            <div class="popup-header">
                 <span>Help</span>
                 <button class="close-button" data-target="help-popup">X</button>
             </div>
@@ -86,12 +86,12 @@
 
     <div class="popup" id="resume-popup">
         <div id="resume-popup-content">
-            <div id="resume-popup-header">
+            <div class="popup-header">
                 <span>Resume</span>
                 <button class="close-button" data-target="resume-popup">X</button>
             </div>
             <div id="resume-popup-body">
-                <iframe src="documents/resume.pdf" id="resume-pdf" frameborder="0"></iframe>
+                <iframe src="documents/resume.pdf" id="resume-pdf" frameborder="0" allow="pointer-lock"></iframe>
             </div>
             <div class="resize-handle"></div>
         </div>
@@ -104,144 +104,147 @@
         }
 
         let isMuted = false;
-
         const soundIcon = document.getElementById("soundIcon");
 
         soundIcon.addEventListener("click", () => {
             isMuted = !isMuted;
             soundIcon.src = isMuted ? "images/muted.png" : "images/unmuted.png";
-
             const mediaElements = document.querySelectorAll("audio, video");
-            mediaElements.forEach(el => {
-                el.muted = isMuted;
-            });
+            mediaElements.forEach(el => el.muted = isMuted);
         });
 
         function updateClock() {
             const clock = document.getElementById("clock");
             const now = new Date();
-
             let hours = now.getHours();
             const minutes = now.getMinutes();
             const ampm = hours >= 12 ? "PM" : "AM";
-
-            hours = hours % 12;
-            hours = hours ? hours : 12;
-
+            hours = hours % 12 || 12;
             const paddedMinutes = minutes < 10 ? "0" + minutes : minutes;
-
             clock.textContent = `${hours}:${paddedMinutes} ${ampm}`;
         }
 
         updateClock();
         setInterval(updateClock, 1000);
 
-        const helpPopup = document.getElementById("help-popup");
+        let zIndexCounter = 1001;
 
-        document.querySelectorAll(".close-button").forEach(button => {
-            button.addEventListener("click", () => {
-                const targetId = button.getAttribute("data-target");
-                document.getElementById(targetId).style.display = "none";
+        // Open any popup
+        document.querySelectorAll("[data-popup-target]").forEach(trigger => {
+            trigger.addEventListener("click", () => {
+                const targetId = trigger.getAttribute("data-popup-target");
+                const popup = document.getElementById(targetId);
+                if (popup) {
+                    popup.style.display = "flex";
+                    zIndexCounter++;
+                    popup.style.zIndex = zIndexCounter;
+                }
             });
         });
 
+        // Close popup
+        document.querySelectorAll(".close-button").forEach(button => {
+            button.addEventListener("click", () => {
+                const targetId = button.getAttribute("data-target");
+                const popup = document.getElementById(targetId);
+                if (popup) popup.style.display = "none";
+            });
+        });
+
+        // Bring popup to front when clicked
+        document.querySelectorAll(".popup").forEach(popup => {
+            popup.addEventListener("mousedown", () => {
+                zIndexCounter++;
+                popup.style.zIndex = zIndexCounter;
+            });
+        });
+
+        // Make popups draggable via .popup-header
+        document.querySelectorAll(".popup").forEach(popup => {
+            const header = popup.querySelector(".popup-header");
+            if (!header) return;
+
+            let isDragging = false, offsetX = 0, offsetY = 0;
+
+            header.addEventListener("mousedown", (e) => {
+                isDragging = true;
+                const rect = popup.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                popup.style.transition = "none";
+            });
+
+            document.addEventListener("mousemove", (e) => {
+                if (isDragging) {
+                    popup.style.left = `${e.clientX - offsetX}px`;
+                    popup.style.top = `${e.clientY - offsetY}px`;
+                    popup.style.transform = "none";
+                }
+            });
+
+            document.addEventListener("mouseup", () => {
+                isDragging = false;
+            });
+        });
+
+        // Make popups resizable via .resize-handle
+        document.querySelectorAll(".popup").forEach(popup => {
+            const handle = popup.querySelector(".resize-handle");
+            const iframe = popup.querySelector("iframe");
+
+            if (!handle) return;
+
+            let isResizing = false;
+            let startX, startY, startWidth, startHeight;
+
+            const onMouseMove = (e) => {
+                if (!isResizing) return;
+                const newWidth = Math.max(300, startWidth + (e.clientX - startX));
+                const newHeight = Math.max(200, startHeight + (e.clientY - startY));
+                popup.style.width = newWidth + "px";
+                popup.style.height = newHeight + "px";
+            };
+
+            const onMouseUp = () => {
+                if (isResizing) {
+                    isResizing = false;
+                    window.removeEventListener("mousemove", onMouseMove);
+                    window.removeEventListener("mouseup", onMouseUp);
+                    document.body.style.cursor = "";
+                    if (iframe) iframe.style.pointerEvents = "auto"; // Re-enable iframe interaction
+                }
+            };
+
+            handle.addEventListener("mousedown", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                isResizing = true;
+
+                const rect = popup.getBoundingClientRect();
+                startX = e.clientX;
+                startY = e.clientY;
+                startWidth = rect.width;
+                startHeight = rect.height;
+
+                document.body.style.cursor = "se-resize";
+
+                if (iframe) iframe.style.pointerEvents = "none"; // Prevent iframe from stealing events
+
+                window.addEventListener("mousemove", onMouseMove);
+                window.addEventListener("mouseup", onMouseUp);
+            });
+        });
+
+        // Show help popup on load
         window.addEventListener("DOMContentLoaded", () => {
-            helpPopup.style.display = "flex";
+            const helpPopup = document.getElementById("help-popup");
+            if (helpPopup) helpPopup.style.display = "flex";
         });
 
+        // Toggle help popup from Start menu
         document.getElementById("help-button").addEventListener("click", () => {
-            helpPopup.style.display = "flex";
-        });
-
-        const header = document.getElementById("help-popup-header");
-
-        let isDragging = false;
-        let offsetX = 0;
-        let offsetY = 0;
-
-        header.addEventListener("mousedown", (e) => {
-            isDragging = true;
-            const rect = helpPopup.getBoundingClientRect();
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
-            helpPopup.style.transition = "none";
-        });
-
-        document.addEventListener("mousemove", (e) => {
-            if (isDragging) {
-                helpPopup.style.left = `${e.clientX - offsetX}px`;
-                helpPopup.style.top = `${e.clientY - offsetY}px`;
-                helpPopup.style.transform = "none";
-            }
-        });
-
-        document.addEventListener("mouseup", () => {
-            isDragging = false;
-        });
-
-        const resizeHandle = helpPopup.querySelector(".resize-handle");
-        const minWidth = 300;
-        const minHeight = 200;
-
-        let isResizing = false;
-        let startX, startY, startWidth, startHeight;
-
-        resizeHandle.addEventListener("mousedown", (e) => {
-            e.preventDefault();
-            isResizing = true;
-            startX = e.clientX;
-            startY = e.clientY;
-            const rect = helpPopup.getBoundingClientRect();
-            startWidth = rect.width;
-            startHeight = rect.height;
-            document.body.style.cursor = "se-resize";
-        });
-
-        document.addEventListener("mousemove", (e) => {
-            if (isResizing) {
-                const newWidth = Math.max(minWidth, startWidth + (e.clientX - startX));
-                const newHeight = Math.max(minHeight, startHeight + (e.clientY - startY));
-                helpPopup.style.width = newWidth + "px";
-                helpPopup.style.height = newHeight + "px";
-            }
-        });
-
-        document.addEventListener("mouseup", () => {
-            if (isResizing) {
-                isResizing = false;
-                document.body.style.cursor = "";
-            }
-        });
-
-        document.getElementById("resume").addEventListener("click", () => {
-            document.getElementById("resume-popup").style.display = "flex";
-        });
-
-        const resumePopup = document.getElementById("resume-popup");
-        const resumeHeader = document.getElementById("resume-popup-header");
-
-        let isDraggingResume = false;
-        let offsetXResume = 0;
-        let offsetYResume = 0;
-
-        resumeHeader.addEventListener("mousedown", (e) => {
-            isDraggingResume = true;
-            const rect = resumePopup.getBoundingClientRect();
-            offsetXResume = e.clientX - rect.left;
-            offsetYResume = e.clientY - rect.top;
-            resumePopup.style.transition = "none";
-        });
-
-        document.addEventListener("mousemove", (e) => {
-            if (isDraggingResume) {
-                resumePopup.style.left = `${e.clientX - offsetXResume}px`;
-                resumePopup.style.top = `${e.clientY - offsetYResume}px`;
-                resumePopup.style.transform = "none";
-            }
-        });
-
-        document.addEventListener("mouseup", () => {
-            isDraggingResume = false;
+            const helpPopup = document.getElementById("help-popup");
+            if (helpPopup) helpPopup.style.display = "flex";
         });
     </script>
 </body>
